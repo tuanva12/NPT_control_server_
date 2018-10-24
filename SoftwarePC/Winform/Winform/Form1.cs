@@ -50,12 +50,12 @@ namespace Winform
 
                 /*read file and export data to bin file*/
                 export.actionEff();
-                MessageBox.Show("Đã Xuất file hiệu ứng thành công.");
+                MessageBox.Show("Đã Xuất file hiệu ứng thành công.","OK",MessageBoxButtons.OK,MessageBoxIcon.Information);
 
             }
             catch
             {
-                MessageBox.Show("Err");
+                MessageBox.Show("Xuất File không thành công, đã xẩy ra lỗi.","Error.",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
     }

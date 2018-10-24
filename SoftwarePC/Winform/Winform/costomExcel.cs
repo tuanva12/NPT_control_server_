@@ -12,7 +12,7 @@ namespace Winform
 {
     public class costomExcel
     {
-        private int maxNumOutPut;   // so luong dau ra 
+        private int maxNumOutPut;   // so luong dau ra
         private int numStt;         // so luong max hieu ung
         private int numrepeat;
         private ExcelPackage cell = new ExcelPackage();
@@ -85,7 +85,7 @@ namespace Winform
 
             // lấy sheet vừa add ra để thao tác
             ExcelWorksheet sheets = Cell.Workbook.Worksheets[1];
-            sheets.View.FreezePanes(5,3);   // đóng băng để hiển thị 
+            sheets.View.FreezePanes(5,4);   // đóng băng để hiển thị
             // đặt tên cho sheet
             sheets.Name = "Main Program";
             // fontsize mặc định cho cả sheet
@@ -98,7 +98,7 @@ namespace Winform
             // đổi màu cho header
             sheets.Cells[1, 1, 3, 3].Style.Fill.PatternType = ExcelFillStyle.LightDown;
             sheets.Cells[1, 1, 3, 3].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Cyan);
-            
+
             //////////////////    So kenh
             var X = sheets.Cells[1, 1];
             X.Value = "So Kenh";
@@ -148,7 +148,7 @@ namespace Winform
 
             // tieu de
 
-            var title = sheets.Cells[1, 3, 3, maxNumOutPut +2];      // O viet tieu de
+            var title = sheets.Cells[1, 4, 3, maxNumOutPut +3];      // O viet tieu de
             // merge các column lại từ column 1 đến số column header
             // gán giá trị cho cell vừa merge là Thống kê thông tni User Kteam
             title.Value = "Bảng Thiết Kế Hiệu Ứng";
@@ -169,71 +169,61 @@ namespace Winform
 
 
 
-            // tao hàng so kenh
-            for (int a = 0; a <= maxNumOutPut; a++)
+            // tao hàng header cho file lap trinh
+            for (int a = 1; a <= (maxNumOutPut +3); a++)
             {
-                var x = sheets.Cells[4, a + 2];
-                if (a != 0)
-                {
-                    x.Value = "Kenh " + (a).ToString();
-                    x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
-                    x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.DarkSlateBlue);   // noi mau nen
-                }
-                else
-                {
-                    x.Value = "Delay";
-                    x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
-                    x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
-                }
-                x.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
-                
+                var x = sheets.Cells[4, a];
                 // ve khung
                 x.Style.Border.Left.Style =
                 x.Style.Border.Right.Style =
                 x.Style.Border.Top.Style =
                 x.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                x.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
+                switch (a)
+                {
+                    case 1:
+                        {
+                            x.Value = "Nhom";
+                            x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
+                            x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
+                            break;
+                        }
+                    case 2:
+                        {
+                            x.Value = "Lap";
+                            x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
+                            x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
+                            break;
+                        }
+                    case 3:
+                        {
+                            x.Value = "Delay";
+                            x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
+                            x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
+                            x.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                            break;
+                        }
+                    default :
+                        {
+                            x.Value = "Kenh " + (a-3).ToString();
+                            x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
+                            x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.DarkSlateBlue);   // noi mau nen
+                            break;
+                        }
+                }
             }
 
-            // Danh STT
-           
-            for (int a = 0; a <= numStt; a++)
-            {
-                var x = sheets.Cells[4 + a,1];
-                if (a == 0)
-                {
-                    x.Value = "STT";
-                    x.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
-                    x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
-                    x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aqua);   // noi mau nen
-                                                                                        // ve khung
-                    x.Style.Border.Left.Style =
-                    x.Style.Border.Top.Style =
-                    x.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    x.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                }
-                else
-                {
-                    x.Value = a.ToString();
-                    x.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
-                    x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
-                    x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aqua);   // noi mau nen
-                                                                                        // ve khung
-                    x.Style.Border.Left.Style =
-                    x.Style.Border.Top.Style =
-                    x.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    x.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    // ve body cho cot delay
-                    x = sheets.Cells[4 + a, 2];
-                    x.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
-                    x.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
-                    x.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
-                    // ve khung
-                    x.Style.Border.Left.Style =
-                    x.Style.Border.Top.Style =
-                    x.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    x.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                }
-            }
+            var Header = sheets.Cells[5,1,100,3];
+            Header.Style.Border.Left.Style =
+            Header.Style.Border.Right.Style =
+            Header.Style.Border.Top.Style =
+            Header.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            Header.Style.Fill.PatternType = ExcelFillStyle.Solid;        // doi mau nen
+            Header.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Aquamarine);   // noi mau nen
+            Header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;    // can giua
+            Header = sheets.Cells[5,3,100,3];
+            Header.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+
         }
     }
 }

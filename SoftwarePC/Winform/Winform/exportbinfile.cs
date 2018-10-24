@@ -13,12 +13,14 @@ namespace Winform
     {
         private int xSize;        // chieu X cua mang 2 chieu , la chieu rong cua mang
         private int ySize;        // chieu Y cua mang 2 chieu , la chieu cao cua mang
-        private int maxNumOutPut;  // so luong dau ra 
+        private int maxNumOutPut;  // so luong dau ra
         private int numStt;         // so luong max hieu ung
         private int numrepeat;      // so lan lap lai hieu ung
-   
+
         private int Ybegin = 5;     // hang bắt đầu viết hiệu ứng
-        private int Xbegin = 2;     // cot bắt đầu viết hiệu ứng
+        private int Xbegin = 3;     // cot bắt đầu viết hiệu ứng
+
+
         private ExcelPackage cell = new ExcelPackage();
         public ExcelPackage Cell
         {
@@ -83,9 +85,6 @@ namespace Winform
             Numrepeat = int.Parse(workSheet.Cells[2, 2].Value.ToString());      // so lan lap lai hieu ung
             NumStt = int.Parse(workSheet.Cells[3, 2].Value.ToString());         // chieu dai hieu ung
 
-
-
-
             if ((maxNumOutPut % 8) == 0)
             {
                 xSize = maxNumOutPut / 8 + 2;
@@ -94,17 +93,61 @@ namespace Winform
 
             ySize = NumStt;                        // gan gia tri chieu Y
 
-            byte[,] data = new byte[ySize, xSize];    // data luu du lieu hieu ung
-            for (int y = 0; y < numStt; y++)    // i la chi so hang trong  ysize
+            byte[,] data = new byte[ySize, xSize];    // Mang nay se luu du lieu chay va ghi vao memory card
+
+
+
+            int Y_Count = 0;                   // Bien Y_Count su dung de lay data trong file
+            int Y_StartGr = 0;
+            int Sub_Repeat = 1;                // Bien su dung de luu tru so lan lap lai
+            string Current_Groupt = "A";
+            string Current_Groupt_name;
+
+            for (int y = 0; y < ySize; y++)    // y la chi so hang trong  ysize, y chay tu hang dau tien bat dau hieu ung den cuoi cung cua hang
             {
                 int[] buff = new int[maxNumOutPut +1];
+                Current_Groupt_name = workSheet.Cells[Y_Count + Ybegin,1].Value.ToString();
+                if((Current_Groupt_name != Current_Groupt) || (Current_Groupt_name == "#"))
+                {
+                    if(int.Parse(workSheet.Cells[Y_Count + Ybegin - 1,2].Value.ToString()) != Sub_Repeat)  // Neu chua lap du so lan
+                    {
+                        Sub_Repeat ++;
+                        Y_Count = Y_StartGr;
+                    }
+                    else // Neu da lap du so lan roi thi chuyen sang nhom moi, gan laij vi tri bat dau cho nhom moi,
+                    {
+                        Y_StartGr = Y_Count;                    // gan laij vi tri bat dau cho nhom moi,
+                        Current_Groupt = Current_Groupt_name;    // Gan lai ten cho ten cho group moi
+                        Sub_Repeat = 1;
+                    }
+                }
+
                 // gan chuoi thanh mang int
                 for (int x = 0; x <= maxNumOutPut; x++)
                 {
-                    var value = workSheet.Cells[y + Ybegin, Xbegin +x].Value;
+                    var value = workSheet.Cells[Y_Count + Ybegin, Xbegin +x].Value;
                     if (value != null)
                     {
-                        buff[x] = int.Parse(value.ToString());
+                        if (x != 0)
+                        {
+                            if (int.Parse(value.ToString()) == 1)
+                            {
+                                buff[x] = 1;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                buff[x] = int.Parse(value.ToString());
+                            }
+                            catch
+                            {
+                                MessageBox.Show(String.Format("Kiểm tra lại dòng thứ {0}!!!", Y_Count), "Lỗi", MessageBoxButtons.OK);
+                                buff[x] = int.Parse(value.ToString());
+                               
+                            }
+                        }
                     }
                     else
                     {
@@ -159,9 +202,10 @@ namespace Winform
                         data[y, point] = 0x00;
                     }
                 }
+                Y_Count ++;
             }
             /*write data to .bin file*/
-            writedata((byte)xSize,(byte)numrepeat, numStt, data);
+            writedata((byte)xSize,(byte)numrepeat, ySize, data);
         }
         /// <summary>
         /// Ghi du lieu vao file lan luot theo thu tu:
@@ -174,6 +218,7 @@ namespace Winform
         /// <param name="repeat"></param>
         /// <param name="efflong"></param>
         /// <param name="data"></param>
+
         private void writedata(byte X_Size, byte repeat, int efflong, byte[,] data)
         {
             string filepath = "";
@@ -189,7 +234,7 @@ namespace Winform
                 {
                     using (BinaryWriter writer = new BinaryWriter(stream))
                     {
-                        writer.Write(X_Size);  // write 8 bit hight of int number chanel 
+                        writer.Write(X_Size);  // write 8 bit hight of int number chanel
                         writer.Write(repeat);  // ghi so lan lap lai hieu ung
                         writer.Write((byte)(efflong>>8)); // ghi chieu dai hieu ung
                         writer.Write((byte)efflong);      // ghi chieu dai hieu ung
